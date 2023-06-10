@@ -15,13 +15,17 @@ namespace BigFileGenerator {
             toolStripStatusLabel1.Text = versionInfo.CompanyName + "制作";
             toolStripStatusLabel2.Text = "v" + versionInfo.ProductVersion;
             toolStripStatusLabel3.Text = versionInfo.LegalCopyright;
+            task.SetOnTaskFinished(() => {
+                this.BeginInvoke((MethodInvoker) delegate {
+                    startBtn.Text = "Start";
+                });
+            });
         }
 
         private void startBtn_Click(object sender, EventArgs e) {
             if (task.IsRunning()) {
                 if (MessageBox.Show("Are you sure you want to stop generating?", "Stop", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                     task.Stop();
-                    startBtn.Text = "Start";
                 }
             } else {
                 task.Resume();
@@ -38,8 +42,12 @@ namespace BigFileGenerator {
         }
     }
 
+    public delegate void TaskFinishedEventHandler();
+
     class GenerateTask {
         private bool running = false;
+
+        private event TaskFinishedEventHandler finishHandler;
 
         public void Generate() {
             try {
@@ -54,6 +62,9 @@ namespace BigFileGenerator {
                 MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             } finally {
                 running = false;
+                if (finishHandler!= null) {
+                    finishHandler();
+                }
             }
         }
 
@@ -67,6 +78,10 @@ namespace BigFileGenerator {
 
         public bool IsRunning() {
             return running;
+        }
+
+        public void SetOnTaskFinished(TaskFinishedEventHandler handler) {
+            finishHandler = handler;
         }
     }
 }
