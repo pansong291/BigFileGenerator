@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -9,6 +11,10 @@ namespace BigFileGenerator {
 
         public MainForm() {
             InitializeComponent();
+            var versionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
+            toolStripStatusLabel1.Text = versionInfo.CompanyName + "制作";
+            toolStripStatusLabel2.Text = "v" + versionInfo.ProductVersion;
+            toolStripStatusLabel3.Text = versionInfo.LegalCopyright;
         }
 
         private void startBtn_Click(object sender, EventArgs e) {
@@ -25,6 +31,10 @@ namespace BigFileGenerator {
                 };
                 thread.Start();
             }
+        }
+
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e) {
+            Process.Start("https://github.com/pansong291/BigFileGenerator");
         }
     }
 
