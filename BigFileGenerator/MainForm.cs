@@ -51,9 +51,8 @@ namespace BigFileGenerator {
 
         public void Generate() {
             try {
-                string path = Path.Combine(Directory.GetCurrentDirectory(), "big_file");
-                using (FileStream stream = new FileStream(path, FileMode.Create)) {
-                    byte[] buffer = new byte[1024];
+                using (FileStream stream = new FileStream(GetUniqueFilePath(), FileMode.Create)) {
+                    byte[] buffer = new byte[2 * 1024 * 1024];
                     while (running) {
                         stream.Write(buffer, 0, buffer.Length);
                     }
@@ -82,6 +81,20 @@ namespace BigFileGenerator {
 
         public void SetOnTaskFinished(TaskFinishedEventHandler handler) {
             finishHandler = handler;
+        }
+
+        private string GetUniqueFilePath()
+        {
+            string directory = Directory.GetCurrentDirectory();
+            string fileName = "big_file";
+            string extension = ".tmp";
+            string newFilePath = Path.Combine(directory, $"{fileName}{extension}");
+            int counter = 1;
+            while (File.Exists(newFilePath)) {
+                newFilePath = Path.Combine(directory, $"{fileName}({counter}){extension}");
+                counter++;
+            }
+            return newFilePath;
         }
     }
 }
